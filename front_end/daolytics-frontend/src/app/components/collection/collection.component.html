@@ -1,0 +1,77 @@
+<div style = "height: 73vh">
+  <nz-tabset [nzCentered]="true" style = "height: 100%">
+    <nz-tab nzTitle="Create" style = "height: 100%">
+      <div nz-row [nzGutter]="12" style = "height: 100%">
+        <div nz-col [nzSpan]="16" style = "height: 100%">
+          <div nz-row [nzGutter]="12" style = "margin-bottom: 12px">
+            <div nz-col [nzSpan]="24">  
+              <nz-card [nzHoverable]="true">
+                <nz-input-group [nzSuffix]="suffixIconSearch">
+                  <input type="text" nz-input [(ngModel)]="searchString" placeholder="input search text" />
+                </nz-input-group>
+                <ng-template #suffixIconSearch>
+                  <i nz-icon nzType="search" (click)="onSearch(searchString)"></i>
+                </ng-template>
+              </nz-card>
+            </div>
+          </div>
+          <div nz-row [nzGutter]="12">
+            <div nz-col [nzSpan]="24">
+              <nz-card [nzHoverable]="true" class="no-scroll-collection" style="height:60vh; overflow-y: scroll; width: 100%;">
+                <div *ngFor="let item of list" nz-card-grid [ngStyle]="gridStyle" style="width: 25%; height: 200px">
+                  <nz-badge [nzDot]="item.selected">
+                    <div style="border-radius: 50%; max-width:100%; max-height:50%" (click)="onSelectionClick(item)">
+                      <img src="{{item.image_url}}" style="border-radius: 50%; max-width:100%; max-height:100%; object-fit: contain; object-position: 50% 50%">
+                    </div>
+                  </nz-badge>
+                  <div>
+
+                  </div>
+                </div>
+              </nz-card>
+            </div>
+          </div>
+        </div>
+        <div nz-col [nzSpan]="8" style = "height: 100%">
+          <div nz-row [nzGutter]="12" style = "height: 30%; margin-bottom: 12px">
+            <div nz-col [nzSpan]="24">  
+              <nz-card [nzHoverable]="true" style = "height: 100%">
+                <div nz-card-grid [ngStyle]="gridStyle">Content</div>
+              </nz-card>
+            </div>
+          </div>
+          <div nz-row [nzGutter]="12" style = "height: 70%; margin-bottom: 12px">
+            <div nz-col [nzSpan]="24"> 
+              <nz-card [nzHoverable]="true" style = "overflow-y: scroll; height: 100%; width: 100%; position: absolute">
+                <nz-list class="demo-loadmore-list" [nzLoading]="initLoading">
+                  <nz-list-item *ngFor="let item of listSelected">
+                    <ng-container *ngIf="!item.loading">
+                      <nz-list-item-meta  (click)="onSecondarySelectionClick(item)"
+                        nzAvatar="{{item.image_url}}"
+                        nzDescription="{{item.name}}"
+                      >
+                      </nz-list-item-meta>
+                      <ul nz-list-item-actions>
+                        <nz-list-item-action><i nz-icon nzType="close-circle" nzTheme="fill"></i><a></a></nz-list-item-action>
+                      </ul>
+                    </ng-container>
+                    <nz-skeleton
+                      *ngIf="item.loading"
+                      [nzAvatar]="true"
+                      [nzActive]="true"
+                      [nzTitle]="false"
+                      [nzLoading]="true"
+                    ></nz-skeleton>
+                  </nz-list-item>
+                </nz-list>
+              </nz-card>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nz-tab>
+    <nz-tab nzTitle="Explore">
+
+    </nz-tab>
+  </nz-tabset>
+</div>
