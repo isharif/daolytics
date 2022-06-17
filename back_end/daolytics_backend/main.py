@@ -1,4 +1,3 @@
-from jmespath import search
 from flask import Flask, jsonify, request, send_file, render_template
 import requests
 import json
