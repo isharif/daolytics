@@ -23,7 +23,7 @@ export class CollectionComponent implements OnInit {
     textAlign: 'center'
   };
   searchString: string = "";
-  fakeDataUrl = 'http://localhost:4200/api/searchstring?';
+  DataUrl = 'http://localhost:5000/api/searchstring?';
   constructor(private http: HttpClient, private msg: NzMessageService) {}
 
   ngOnInit(): void {
@@ -31,16 +31,16 @@ export class CollectionComponent implements OnInit {
 
   getData(callback: (res: any) => void, searchString: string): void {
     this.http
-      .get(this.fakeDataUrl.concat("searchstring=",searchString))
+      .get(this.DataUrl.concat("searchstring=",searchString))
       .pipe(catchError(() => of({ res: [] })))
       .subscribe((res: any) => callback(res));
-    console.log(this.fakeDataUrl.concat("searchstring=",searchString));
+    console.log(this.DataUrl.concat("searchstring=",searchString));
   }
 
   onLoadMore(): void {
     this.loadingMore = true;
     this.http
-      .get(this.fakeDataUrl)
+      .get(this.DataUrl)
       .pipe(catchError(() => of({ data: [] })))
       .subscribe((res: any) => {
         this.data = this.data.concat(res.data);
