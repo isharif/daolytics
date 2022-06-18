@@ -28,8 +28,8 @@ export class CollectionComponent implements OnInit {
   histUrl = ""
   selectedTabIndex = 0;
   // DataUrl = 'https://daolytics.live/api/searchstring?';
-  DataUrl = 'http://daolytics.live/api/searchstring?';
-  DataFetchMetricsUrl = 'http://daolytics.live/api/metrics?';
+  DataUrl = 'https://daolytics.live/api/searchstring?';
+  DataFetchMetricsUrl = 'https://daolytics.live/api/metrics?';
   constructor(private http: HttpClient, private msg: NzMessageService) {}
 
   ngOnInit(): void {
