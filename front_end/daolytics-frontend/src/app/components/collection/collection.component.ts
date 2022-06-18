@@ -23,7 +23,7 @@ export class CollectionComponent implements OnInit {
     textAlign: 'center'
   };
   searchString: string = "";
-  DataUrl = 'http://45.79.35.51/api/searchstring?';
+  DataUrl = 'https://daolytics.live/api/searchstring?';
   constructor(private http: HttpClient, private msg: NzMessageService) {}
 
   ngOnInit(): void {
