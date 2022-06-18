@@ -70,18 +70,37 @@ def get_searchresult():
     searchString = request.args.get("searchstring")
     matchedPoaps = df.loc[df["name"].str.contains(searchString, case=False)]
     print(searchString)
-    ids = []
     matchedPoaps = matchedPoaps.reset_index()
     return matchedPoaps.to_json(orient="records")
-    for index, row in matchedPoaps.iterrows():
+
+
+@app.route("/api/metrics")
+def get_searchresult():
+    ids = []
+    metrics = request.args.get("metrics")
+    metricsList = metrics.split(",")
+    for index, row in enumerate(metricsList):
         ids.append(str(row["id"]))
         print(index)
         ##result = client.execute(query)
         ##data.append(result)
-    query = str(
-        queryFirst.strip() + str(ids).strip().replace("'", '"') + queryLast.strip()
-    )
-    print(query)
+    qf = """
+        query {
+            tokens (first: 1000, where: {event_in: """
+
+    ql = """
+        }) {
+        id,
+        event {
+            id
+        },
+        owner {
+            id
+        }
+        }
+    }"""
+    query = str(qf.strip() + str(ids).strip().replace("'", '"') + ql.strip())
+    print(qf.strip() + str(ids).strip().replace("'", '"') + ql.strip())
     query = gql(query)
     result = client.execute(query)
     print(result)
@@ -186,30 +205,30 @@ def get_searchresult():
     print("number of record with duplicates", aggregationdf.shape)
     img = io.BytesIO()  # file-like object for the image
     print("line 227")
-    plt.savefig(img)
+    plt.savefig("./static/assets/graph.png")
     img.seek(0)  # writing moved the cursor to the end of the file, reset
     print("line 231")
     plt.clf()  # clear pyplot
     # return send_file(img, mimetype="image/png")
 
-    matrix = np.tril(matrix)
-    histoMatrix = np.asarray(matrix).flatten()
-    histoMatrix = [histoMatrix != 0]
+    # matrix = np.tril(matrix)
+    # histoMatrix = np.asarray(matrix).flatten()
+    # histoMatrix = [histoMatrix != 0]
 
-    a = histoMatrix
-    plt.hist(a, bins=[0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0])
-    plt.title("histogram")
-    imgHist = io.BytesIO()  # file-like object for the image
-    print("line 254")
-    plt.savefig(imgHist)
-    imgHist.seek(0)  # writing moved the cursor to the end of the file, reset
-    print("line 257")
-    plt.clf()  # clear pyplot
+    # a = histoMatrix
+    # plt.hist(a, bins=[0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0])
+    # plt.title("histogram")
+    # imgHist = io.BytesIO()  # file-like object for the image
+    # print("line 254")
+    # plt.savefig(imgHist)
+    # imgHist.seek(0)  # writing moved the cursor to the end of the file, reset
+    # print("line 257")
+    # plt.clf()  # clear pyplot
 
     # Embed the result in the html output.
     ##return f"<img src='data:image/png;base64,{data}'/>"
 
-    return send_file(imgHist, mimetype="image/png")
+    return "./static/assets/graph.png"
 
 
 @app.route("/incomes", methods=["POST"])

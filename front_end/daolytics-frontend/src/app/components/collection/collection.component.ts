@@ -23,7 +23,9 @@ export class CollectionComponent implements OnInit {
     textAlign: 'center'
   };
   searchString: string = "";
-  DataUrl = 'https://daolytics.live/api/searchstring?';
+  // DataUrl = 'https://daolytics.live/api/searchstring?';
+  DataUrl = 'http://localhost:4200/api/searchstring?';
+  DataFetchMetricsUrl = 'http://localhost:4200/api/metrics?';
   constructor(private http: HttpClient, private msg: NzMessageService) {}
 
   ngOnInit(): void {
@@ -35,6 +37,14 @@ export class CollectionComponent implements OnInit {
       .pipe(catchError(() => of({ res: [] })))
       .subscribe((res: any) => callback(res));
     console.log(this.DataUrl.concat("searchstring=",searchString));
+  }
+
+  getMetrics(callback: (res: any) => void, poapList: string): void {
+    this.http
+      .get(this.DataUrl.concat("metrics=", poapList))
+      .pipe(catchError(() => of({ res: [] })))
+      .subscribe((res: any) => callback(res));
+    console.log(this.DataUrl.concat("metrics=",poapList));
   }
 
   onLoadMore(): void {
@@ -54,7 +64,7 @@ export class CollectionComponent implements OnInit {
   }
 
   onSearch(searchString: string): void {
-    this.getData((res: any) => {
+    this.getMetrics((res: any) => {
       console.log(res)
       this.data = res;
       this.list = res;
@@ -65,6 +75,21 @@ export class CollectionComponent implements OnInit {
         this.list[index] = { ...this.list[index], selected: false};
     });
     }, searchString);
+  }
+
+  onGenerateClick(): void {
+    var poapList = "";
+    for (var index in this.listSelected) {
+          poapList = poapList + this.listSelected[index].id;
+    }
+    this.getData((res: any) => {
+      console.log(res)
+      this.data = res;
+      this.list = res;
+      console.log(this.data);
+      console.log(this.list);
+      this.initLoading = false;
+    }, poapList);
   }
 
   onSelectionClick(item: any){
