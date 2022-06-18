@@ -75,12 +75,12 @@ def get_searchresult():
 
 
 @app.route("/api/metrics")
-def get_searchresult():
+def get_metrics():
     ids = []
     metrics = request.args.get("metrics")
     metricsList = metrics.split(",")
     for index, row in enumerate(metricsList):
-        ids.append(str(row["id"]))
+        ids.append(row)
         print(index)
         ##result = client.execute(query)
         ##data.append(result)
@@ -211,29 +211,42 @@ def get_searchresult():
     plt.clf()  # clear pyplot
     # return send_file(img, mimetype="image/png")
 
-    # matrix = np.tril(matrix)
-    # histoMatrix = np.asarray(matrix).flatten()
-    # histoMatrix = [histoMatrix != 0]
+    matrix = np.tril(matrix)
+    histoMatrix = np.asarray(matrix).flatten()
+    histoMatrix = [histoMatrix != 0]
 
-    # a = histoMatrix
-    # plt.hist(a, bins=[0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0])
-    # plt.title("histogram")
+    a = histoMatrix
+    plt.hist(a, bins=[0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0])
+    plt.title("histogram")
     # imgHist = io.BytesIO()  # file-like object for the image
-    # print("line 254")
-    # plt.savefig(imgHist)
+    print("line 254")
+    plt.savefig("./static/assets/hist.png")
     # imgHist.seek(0)  # writing moved the cursor to the end of the file, reset
-    # print("line 257")
-    # plt.clf()  # clear pyplot
+    print("line 257")
+    plt.clf()  # clear pyplot
 
     # Embed the result in the html output.
     ##return f"<img src='data:image/png;base64,{data}'/>"
 
-    return "./static/assets/graph.png"
+    return jsonify(
+        {
+            "status": "OK",
+            "result": {
+                "graph": "http://daolytics.live/static/assets/graph.png",
+                "hist": "http://daolytics.live/static/assets/hist.png",
+            },
+        }
+    )
 
 
-@app.route("/incomes", methods=["POST"])
-def add_income():
-    return "", 204
+@app.route("/static/assets/graph.png", methods=["GET"])
+def send_graph():
+    return send_file("static/assets/graph.png")
+
+
+@app.route("/static/assets/hist.png", methods=["GET"])
+def send_hist():
+    return send_file("static/assets/hist.png")
 
 
 @app.route("/", methods=["GET"])

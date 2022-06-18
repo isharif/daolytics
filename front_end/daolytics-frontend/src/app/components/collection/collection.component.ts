@@ -23,9 +23,13 @@ export class CollectionComponent implements OnInit {
     textAlign: 'center'
   };
   searchString: string = "";
+  metricsGenerated = false;
+  graphUrl = ""
+  histUrl = ""
+  selectedTabIndex = 0;
   // DataUrl = 'https://daolytics.live/api/searchstring?';
-  DataUrl = 'http://localhost:4200/api/searchstring?';
-  DataFetchMetricsUrl = 'http://localhost:4200/api/metrics?';
+  DataUrl = 'http://daolytics.live/api/searchstring?';
+  DataFetchMetricsUrl = 'http://daolytics.live/api/metrics?';
   constructor(private http: HttpClient, private msg: NzMessageService) {}
 
   ngOnInit(): void {
@@ -41,10 +45,10 @@ export class CollectionComponent implements OnInit {
 
   getMetrics(callback: (res: any) => void, poapList: string): void {
     this.http
-      .get(this.DataUrl.concat("metrics=", poapList))
+      .get(this.DataFetchMetricsUrl.concat("metrics=", poapList))
       .pipe(catchError(() => of({ res: [] })))
       .subscribe((res: any) => callback(res));
-    console.log(this.DataUrl.concat("metrics=",poapList));
+    console.log(this.DataFetchMetricsUrl.concat("metrics=",poapList));
   }
 
   onLoadMore(): void {
@@ -64,7 +68,7 @@ export class CollectionComponent implements OnInit {
   }
 
   onSearch(searchString: string): void {
-    this.getMetrics((res: any) => {
+    this.getData((res: any) => {
       console.log(res)
       this.data = res;
       this.list = res;
@@ -80,15 +84,16 @@ export class CollectionComponent implements OnInit {
   onGenerateClick(): void {
     var poapList = "";
     for (var index in this.listSelected) {
-          poapList = poapList + this.listSelected[index].id;
+          poapList = poapList + "," + this.listSelected[index].id;
     }
-    this.getData((res: any) => {
-      console.log(res)
-      this.data = res;
-      this.list = res;
-      console.log(this.data);
-      console.log(this.list);
+    this.getMetrics((res: any) => {
+      console.log("response received")
+      console.log(res);
+      this.graphUrl = res.result.graph;
+      this.histUrl = res.result.hist;
+      this.metricsGenerated = true;
       this.initLoading = false;
+      this.selectedTabIndex = 2;
     }, poapList);
   }
 
