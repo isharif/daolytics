@@ -27,7 +27,9 @@ export class CollectionComponent implements OnInit {
   graphUrl = ""
   histUrl = ""
   selectedTabIndex = 0;
-  // DataUrl = 'https://daolytics.live/api/searchstring?';
+  counter = 0;
+  // DataUrl = 'http://localhost:5000/api/searchstring?';
+  // DataFetchMetricsUrl = 'http://localhost:5000/api/metrics?';
   DataUrl = 'https://daolytics.live/api/searchstring?';
   DataFetchMetricsUrl = 'https://daolytics.live/api/metrics?';
   constructor(private http: HttpClient, private msg: NzMessageService) {}
@@ -87,10 +89,13 @@ export class CollectionComponent implements OnInit {
           poapList = poapList + "," + this.listSelected[index].id;
     }
     this.getMetrics((res: any) => {
+      this.counter += this.counter + 1;
       console.log("response received")
       console.log(res);
-      this.graphUrl = res.result.graph;
-      this.histUrl = res.result.hist;
+      this.graphUrl = res.result.graph + "?" + this.counter.toString();
+      this.histUrl = res.result.hist + "?" + this.counter.toString();;
+      console.log(this.graphUrl)
+      console.log(this.histUrl)
       this.metricsGenerated = true;
       this.initLoading = false;
       this.selectedTabIndex = 2;

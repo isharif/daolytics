@@ -10,6 +10,7 @@ import networkx as nx
 import io
 import scipy as sp
 from matplotlib.figure import Figure
+from networkx import Graph
 
 matplotlib.use("Agg")
 
@@ -143,63 +144,80 @@ def get_metrics():
 
     uniWal = list(uniAggregationdf["owner.id"])
     print(len(aggregationdf))
-    conMat = np.zeros((len(aggregationdf), len(aggregationdf)))
+
+    conMat = np.zeros((len(uniAggregationdf), len(uniAggregationdf)))
 
     observations = aggregationdf[["owner.id", "event.id"]].to_records(index=False)
 
     eventLinks = {}
     for (walletAddress, eventId) in observations:
-        # If this event have never been encoutered then create a new entry in links
+        # if this event has not been encountered. Add it to the list
         if not eventId in eventLinks.keys():
             eventLinks[eventId] = []
         eventLinks[eventId].append(walletAddress)
 
-    # collect the wallet addresses
-    walletAddresses = set([walletAd for (walletAd, eventId) in observations])
+    for key in eventLinks:
+        # print("this is the current event_id:", key)
+        # print(eventLinks[key])
+        wList = eventLinks[key]
+        cwList = eventLinks[key]
 
-    # create a member link dictionary. This one link a mnbr to other mnbr linked to it.
-    walletLinks = {walletAd: list() for walletAd in walletAddresses}
-    walletLinksDict = {walletAd: dict() for walletAd in walletAddresses}
+        for wallet in wList:
+            # print("event_id:", key, "wallet in wList:", wallet)
+            w_i = uniWal.index(wallet)
 
-    for walletList in eventLinks.values():
-        # add for each wallet all the wallets that attended the same event.
-        for wallet in walletList:
-            walletLinks[wallet] = walletLinks[wallet] + walletList
+            for cWallet in cwList:
+                # print("event_id:", key, "wallet in cwList:", cWallet)
+                cw_i = uniWal.index(cWallet)
+                conMat[w_i, cw_i] = conMat[w_i, cw_i] + 1
 
-    print("line 187")
+    # # collect the wallet addresses
+    # walletAddresses = set([walletAd for (walletAd, eventId) in observations])
 
-    for key in walletLinks.keys():
-        walletLinksDict[key] = dict(
-            zip(
-                collections.Counter(walletLinks[key]).keys(),
-                collections.Counter(walletLinks[key]).values(),
-            )
-        )
+    # # create a member link dictionary. This one link a mnbr to other mnbr linked to it.
+    # walletLinks = {walletAd: list() for walletAd in walletAddresses}
+    # walletLinksDict = {walletAd: dict() for walletAd in walletAddresses}
 
-    print("line 190")
+    # for walletList in eventLinks.values():
+    #     # add for each wallet all the wallets that attended the same event.
+    #     for wallet in walletList:
+    #         walletLinks[wallet] = walletLinks[wallet] + walletList
 
-    matrix = []
+    # print("line 187")
 
-    for i in range(len(walletLinks.keys())):
-        matrix.append([0] * (len(walletLinks.keys())))
+    # for key in walletLinks.keys():
+    #     walletLinksDict[key] = dict(
+    #         zip(
+    #             collections.Counter(walletLinks[key]).keys(),
+    #             collections.Counter(walletLinks[key]).values(),
+    #         )
+    #     )
 
-    print("line 197")
+    # print("line 190")
 
-    for key in walletLinksDict.keys():
-        for counterKey in walletLinksDict[key].keys():
-            matrixkey1 = uniWal.index(key)
-            matrixkey2 = uniWal.index(counterKey)
-            if walletLinksDict[key][counterKey] != 0:
-                matrix[matrixkey1][matrixkey2] = walletLinksDict[key][counterKey] / len(
-                    ids
-                )
+    # matrix = []
 
-    print(matrix)
-    matrix = np.matrix(matrix)
-    G = nx.from_numpy_matrix(matrix)
+    # for i in range(len(walletLinks.keys())):
+    #     matrix.append([0] * (len(walletLinks.keys())))
+
+    # print("line 197")
+
+    # for key in walletLinksDict.keys():
+    #     for counterKey in walletLinksDict[key].keys():
+    #         matrixkey1 = uniWal.index(key)
+    #         matrixkey2 = uniWal.index(counterKey)
+    #         if walletLinksDict[key][counterKey] != 0:
+    #             matrix[matrixkey1][matrixkey2] = walletLinksDict[key][counterKey] / len(
+    #                 ids
+    #             )
+
+    conMat = np.matrix(conMat)
+    conMat = np.divide(conMat, len(ids))
+    print("printing my final matrix:", conMat)
+    G = nx.from_numpy_matrix(conMat)
+    G.remove_edges_from(nx.selfloop_edges(G))
     nx.draw(G)
-    print("size of matrix", len(matrix))
-    print("size of dictionay", len(walletLinks.keys()))
+    print("size of matrix", len(conMat))
     print("This is the size of values in events dictionary", len(eventLinks.values()))
     print("number of record without duplicates", uniAggregationdf.shape)
     print("number of record with duplicates", aggregationdf.shape)
@@ -211,8 +229,8 @@ def get_metrics():
     plt.clf()  # clear pyplot
     # return send_file(img, mimetype="image/png")
 
-    matrix = np.tril(matrix)
-    histoMatrix = np.asarray(matrix).flatten()
+    conMat = np.tril(conMat)
+    histoMatrix = np.asarray(conMat).flatten()
     histoMatrix = [histoMatrix != 0]
 
     a = histoMatrix
@@ -234,6 +252,8 @@ def get_metrics():
             "result": {
                 "graph": "http://daolytics.live/static/assets/graph.png",
                 "hist": "http://daolytics.live/static/assets/hist.png",
+                # "graph": "http://localhost:5000/static/assets/graph.png",
+                # "hist": "http://localhost:5000/static/assets/hist.png",
             },
         }
     )
